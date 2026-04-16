@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoSmoke Society</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --surface2: #1d2029;
+    --border: #2a2d3a;
+    --accent: #e8ff47;
+    --accent2: #4af0a0;
+    --danger: #ff5c5c;
+    --text: #f0f2ff;
+    --muted: #6b7280;
+    --muted2: #9ca3af;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Shell ── */
+  .shell {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    background: var(--bg);
+    box-shadow: 0 0 80px rgba(0,0,0,.6);
+  }
+
+  /* ── Screen system ── */
+  .screen { display: none; flex-direction: column; min-height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ── Splash ── */
+  #screen-splash {
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 60% 20%, #1b2a1a 0%, var(--bg) 65%);
+    gap: 0;
+  }
+
+  .splash-icon {
+    width: 90px; height: 90px;
+    background: var(--accent);
+    border-radius: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 42px;
+    margin-bottom: 28px;
+    animation: pop .5s cubic-bezier(.34,1.56,.64,1) both;
+    box-shadow: 0 0 60px rgba(232,255,71,.25);
+  }
+
+  @keyframes pop {
+    from { transform: scale(.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .splash-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    animation: fadeUp .5s .2s both;
+  }
+
+  .splash-title span { color: var(--accent); }
+
+  .splash-sub {
+    font-size: 14px;
+    color: var(--muted2);
+    margin-top: 8px;
+    letter-spacing: .3px;
+    animation: fadeUp .5s .3s both;
+  }
+
+  .splash-slogan {
+    margin-top: 40px;
+    font-size: 13px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+    animation: fadeUp .5s .4s both;
+  }
+
+  .btn-start {
+    margin-top: 48px;
+    background: var(--accent);
+    color: #0e0f13;
+    border: none;
+    border-radius: 14px;
+    padding: 16px 44px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    animation: fadeUp .5s .5s both;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(232,255,71,.3); }
+  .btn-start:active { transform: translateY(0); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Onboarding ── */
+  #screen-onboard {
+    padding: 56px 28px 32px;
+  }
+
+  .onboard-step { display: none; flex-direction: column; gap: 12px; }
+  .onboard-step.active { display: flex; }
+
+  .step-num {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .step-emoji { font-size: 52px; margin-bottom: 4px; }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.5px;
+  }
+
+  .step-body {
+    font-size: 15px;
+    color: var(--muted2);
+    line-height: 1.65;
+    margin-top: 4px;
+  }
+
+  .role-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+
+  .role-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .role-card:hover, .role-card.selected {
+    border-color: var(--accent);
+    background: rgba(232,255,71,.06);
+  }
+  .role-card .icon { font-size: 28px; }
+  .role-card h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+  .role-card p { font-size: 13px; color: var(--muted2); margin-top: 2px; }
+
+  .dot-row {
+    display: flex; gap: 8px; justify-content: center; margin-top: auto; padding-top: 32px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); transition: background .2s, width .2s;
+  }
+  .dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
+  /* ── Nav Bar ── */
+  .nav-bar {
+    position: sticky; bottom: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 10px 0 20px;
+    z-index: 10;
+  }
+
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    cursor: pointer; padding: 6px 0;
+    transition: color .2s;
+    color: var(--muted);
+    font-size: 10px; letter-spacing: .5px; text-transform: uppercase;
+  }
+  .nav-item.active { color: var(--accent); }
+  .nav-item svg { width: 22px; height: 22px; }
+
+  /* ── Home ── */
+  #screen-home { flex-direction: column; }
+
+  .home-header {
+    padding: 52px 24px 24px;
+    background: linear-gradient(180deg, #12211a 0%, var(--bg) 100%);
+  }
+
+  .greeting { font-size: 13px; color: var(--muted2); letter-spacing: .3px; }
+
+  .home-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -.5px;
+    margin-top: 4px;
+  }
+
+  .streak-card {
+    margin: 20px 24px 0;
+    background: linear-gradient(135deg, #1c2e1a 0%, #0f1a14 100%);
+    border: 1px solid rgba(74,240,160,.2);
+    border-radius: 20px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .streak-card::before {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, rgba(74,240,160,.15), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .streak-label { font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); }
+  .streak-days { font-family: 'Syne', sans-serif; font-size: 56px; font-weight: 800; line-height: 1; margin-top: 4px; }
+  .streak-sub { font-size: 13px; color: var(--muted2); margin-top: 6px; }
+
+  .streak-meta {
+    display: flex; gap: 20px; margin-top: 20px;
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: 16px;
+  }
+
+  .streak-stat { flex: 1; }
+  .streak-stat-val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; }
+  .streak-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700;
+    padding: 24px 24px 12px;
+    letter-spacing: -.2px;
+  }
+
+  .today-log {
+    padding: 0 24px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .log-btn {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: all .2s;
+    width: 100%; text-align: left;
+    color: var(--text);
+  }
+  .log-btn:hover { border-color: var(--accent); background: rgba(232,255,71,.04); }
+
+  .log-btn-icon { font-size: 24px; }
+  .log-btn-text h3 { font-size: 15px; font-weight: 500; }
+  .log-btn-text p { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+  .log-btn-arrow { margin-left: auto; color: var(--muted); font-size: 18px; }
+
+  .nearby-section { padding: 0 24px 24px; }
+
+  .nearby-card {
+    background: linear-gradient(135deg, #1e1414 0%, #140e0e 100%);
+    border: 1px solid rgba(255,92,92,.2);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .nearby-icon { font-size: 32px; }
+  .nearby-text h3 { font-size: 15px; font-weight: 500; }
+  .nearby-text p { font-size: 12px; color: var(--muted2); margin-top: 3px; }
+
+  .pulse-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--danger);
+    margin-left: auto; flex-shrink: 0;
+    box-shadow: 0 0 0 0 rgba(255,92,92,.4);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,92,92,.4); }
+    70% { box-shadow: 0 0 0 10px rgba(255,92,92,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,92,92,0); }
+  }
+
+  /* ── Report ── */
+  #screen-report { flex-direction: column; }
+
+  .report-header {
+    padding: 52px 24px 20px;
+    background: linear-gradient(180deg, #21160e 0%, var(--bg) 100%);
+  }
+
+  .report-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -.5px;
+  }
+  .report-sub { font-size: 14px; color: var(--muted2); margin-top: 4px; }
+
+  .camera-box {
+    margin: 24px 24px 0;
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    height: 200px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 10px;
+    cursor: pointer; transition: border-color .2s;
+  }
+  .camera-box:hover { border-color: var(--danger); }
+  .camera-box .cam-icon { font-size: 40px; }
+  .camera-box p { font-size: 13px; color: var(--muted2); }
+
+  .camera-box.has-photo {
+    border-style: solid;
+    border-color: var(--danger);
+    background: #1e1414;
+    position: relative;
+  }
+  .camera-box .photo-label {
+    font-size: 14px;
+    color: var(--danger);
+    font-weight: 500;
+  }
+
+  .report-form { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+  .form-label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted2); margin-bottom: 6px; display: block; }
+
+  .form-select, .form-textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    transition: border-color .2s;
+    appearance: none;
+  }
+  .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--danger); }
+  .form-textarea { resize: none; height: 90px; }
+
+  .btn-report {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .btn-report:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,92,92,.3); }
+
+  /* ── Leaderboard ── */
+  #screen-board { flex-direction: column; }
+
+  .board-header {
+    padding: 52px 24px 20px;
+    background: linear-gradient(180deg, #100e21 0%, var(--bg) 100%);
+  }
+
+  .board-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -.5px;
+  }
+
+  .tabs {
+    display: flex; gap: 0;
+    margin: 16px 24px;
+    background: var(--surface);
+    border-radius: 12px; padding: 4px;
+  }
+
+  .tab {
+    flex: 1; padding: 9px;
+    text-align: center;
+    font-size: 13px; font-weight: 500;
+    border-radius: 9px;
+    cursor: pointer; transition: all .2s;
+    color: var(--muted2);
+  }
+  .tab.active { background: var(--bg); color: var(--text); }
+
+  .board-list { padding: 0 24px; display: flex; flex-direction: column; gap: 10px; }
+
+  .board-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 18px;
+    display: flex; align-items: center; gap: 14px;
+    transition: transform .15s;
+  }
+  .board-item:hover { transform: translateX(4px); }
+  .board-item.top1 { border-color: rgba(232,255,71,.4); background: rgba(232,255,71,.04); }
+  .board-item.top2 { border-color: rgba(192,192,220,.3); }
+  .board-item.top3 { border-color: rgba(205,127,50,.3); }
+
+  .rank {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; font-weight: 800;
+    width: 32px; text-align: center;
+  }
+  .rank.gold { color: var(--accent); }
+  .rank.silver { color: #c0c0dc; }
+  .rank.bronze { color: #cd7f32; }
+
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .board-name { font-weight: 500; font-size: 15px; }
+  .board-stat { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+
+  .board-score {
+    margin-left: auto;
+    font-family: 'Syne', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--accent2);
+  }
+
+  .board-reward {
+    margin: 20px 24px 0;
+    background: linear-gradient(135deg, #0f1a10 0%, #0c1408 100%);
+    border: 1px solid rgba(74,240,160,.2);
+    border-radius: 20px;
+    padding: 20px;
+  }
+
+  .reward-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .reward-items { display: flex; flex-direction: column; gap: 10px; }
+
+  .reward-item {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px;
+  }
+  .reward-badge {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px; font-weight: 500;
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  /* ── Profile ── */
+  #screen-profile { flex-direction: column; }
+
+  .profile-header {
+    padding: 52px 24px 24px;
+    text-align: center;
+    background: linear-gradient(180deg, #141220 0%, var(--bg) 100%);
+  }
+
+  .profile-avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    font-size: 36px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 0 40px rgba(232,255,71,.2);
+  }
+
+  .profile-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+  }
+  .profile-role {
+    font-size: 13px;
+    background: rgba(232,255,71,.12);
+    color: var(--accent);
+    padding: 4px 14px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 8px;
+  }
+
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 20px 24px 0;
+  }
+
+  .stat-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .stat-tile-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px; font-weight: 800;
+  }
+  .stat-tile-label { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+
+  .badges-section { padding: 24px; }
+
+  .badges-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px; font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .badges-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px;
+  }
+  .badge.earned { border-color: rgba(232,255,71,.3); color: var(--accent); }
+  .badge.locked { opacity: .4; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #0e0f13;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 600; font-size: 14px;
+    opacity: 0;
+    transition: all .3s;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 50;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 24px 24px 0 0;
+    padding: 32px 24px 48px;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    animation: slideUp .3s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-handle {
+    width: 40px; height: 4px; background: var(--border);
+    border-radius: 2px; margin: 0 auto 24px;
+  }
+
+  .modal-icon { font-size: 48px; text-align: center; margin-bottom: 12px; }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    text-align: center; margin-bottom: 8px;
+  }
+  .modal-body { font-size: 14px; color: var(--muted2); text-align: center; line-height: 1.6; margin-bottom: 24px; }
+
+  .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  .btn-modal-primary {
+    background: var(--accent);
+    color: #0e0f13;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px; font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .btn-modal-secondary {
+    background: transparent;
+    color: var(--muted2);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 13px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* Scrollable inner content */
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .scroll-content::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══════════ SPLASH ══════════ -->
+  <div class="screen active" id="screen-splash">
+    <div class="splash-icon">🚭</div>
+    <div class="splash-title">No<span>Smoke</span><br>Society</div>
+    <div class="splash-sub">Quit together. Report together. Win together.</div>
+    <div class="splash-slogan">Stop killing children — start snitching</div>
+    <button class="btn-start" onclick="goOnboard()">Get Started</button>
+  </div>
+
+  <!-- ══════════ ONBOARDING ══════════ -->
+  <div class="screen" id="screen-onboard">
+    <!-- Step 1 -->
+    <div class="onboard-step active" id="step-1">
+      <div class="step-num">Step 1 of 3</div>
+      <div class="step-emoji">👋</div>
+      <div class="step-title">Welcome to the No-Smoke Society</div>
+      <div class="step-body">A community app where smokers track their quit-journey and non-smokers help keep them accountable — together we clean the air.</div>
+      <button class="btn-start" style="width:100%;margin-top:28px" onclick="nextStep(2)">Next →</button>
+    </div>
+    <!-- Step 2 -->
+    <div class="onboard-step" id="step-2">
+      <div class="step-num">Step 2 of 3</div>
+      <div class="step-emoji">🎯</div>
+      <div class="step-title">Choose your role</div>
+      <div class="role-cards">
+        <div class="role-card" onclick="selectRole(this,'Quitter')">
+          <div class="icon">🚭</div>
+          <div>
+            <h3>I'm quitting smoking</h3>
+            <p>Track your streak & get community support</p>
+          </div>
+        </div>
+        <div class="role-card" onclick="selectRole(this,'Snitch')">
+          <div class="icon">🕵️</div>
+          <div>
+            <h3>I'm a smoke-spotter</h3>
+            <p>Report violations & climb the leaderboard</p>
+          </div>
+        </div>
+      </div>
+      <button class="btn-start" style="width:100%;margin-top:28px" onclick="nextStep(3)">Next →</button>
+    </div>
+    <!-- Step 3 -->
+    <div class="onboard-step" id="step-3">
+      <div class="step-num">Step 3 of 3</div>
+      <div class="step-emoji">🔵</div>
+      <div class="step-title">How Bluetooth works for you</div>
+      <div class="step-body">When you're near another NoSmoke user, both phones ping each other. If a quitter is spotted smoking, a spotter can report them instantly. Your privacy is fully protected — no names, no GPS stored.</div>
+      <button class="btn-start" style="width:100%;margin-top:28px" onclick="enterApp()">Enter the app →</button>
+    </div>
+
+    <div class="dot-row">
+      <div class="dot active" id="dot-1"></div>
+      <div class="dot" id="dot-2"></div>
+      <div class="dot" id="dot-3"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ HOME ══════════ -->
+  <div class="screen" id="screen-home">
+    <div class="scroll-content">
+      <div class="home-header">
+        <div class="greeting">Good morning, Alex 👋</div>
+        <div class="home-title">Day 14 — keep going!</div>
+      </div>
+
+      <div class="streak-card">
+        <div class="streak-label">🔥 Smoke-free streak</div>
+        <div class="streak-days">14</div>
+        <div class="streak-sub">days without a cigarette</div>
+        <div class="streak-meta">
+          <div class="streak-stat">
+            <div class="streak-stat-val" style="color:var(--accent2)">€82</div>
+            <div class="streak-stat-label">Money saved</div>
+          </div>
+          <div class="streak-stat">
+            <div class="streak-stat-val" style="color:var(--accent)">196</div>
+            <div class="streak-stat-label">Cigs avoided</div>
+          </div>
+          <div class="streak-stat">
+            <div class="streak-stat-val" style="color:#a78bfa">+4d</div>
+            <div class="streak-stat-label">Life regained</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Log today</div>
+      <div class="today-log">
+        <button class="log-btn" onclick="showModal('mood')">
+          <div class="log-btn-icon">😌</div>
+          <div class="log-btn-text">
+            <h3>Log my mood & cravings</h3>
+            <p>Track how you're feeling right now</p>
+          </div>
+          <div class="log-btn-arrow">›</div>
+        </button>
+        <button class="log-btn" onclick="showModal('note')">
+          <div class="log-btn-icon">📝</div>
+          <div class="log-btn-text">
+            <h3>Write a progress note</h3>
+            <p>Journal your thoughts & wins</p>
+          </div>
+          <div class="log-btn-arrow">›</div>
+        </button>
+      </div>
+
+      <div class="section-title">Nearby activity</div>
+      <div class="nearby-section">
+        <div class="nearby-card">
+          <div class="nearby-icon">📡</div>
+          <div class="nearby-text">
+            <h3>2 NoSmoke users nearby</h3>
+            <p>Bluetooth active · GDPR compliant</p>
+          </div>
+          <div class="pulse-dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-bar" id="nav-home">
+      <div class="nav-item active" onclick="goTab('home')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </div>
+      <div class="nav-item" onclick="goTab('report')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Report
+      </div>
+      <div class="nav-item" onclick="goTab('board')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4H2v16h5V4zm10 0h-5v16h5V4zm5 0h-3v16h3V4z"/></svg>
+        Leaderboard
+      </div>
+      <div class="nav-item" onclick="goTab('profile')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ REPORT ══════════ -->
+  <div class="screen" id="screen-report">
+    <div class="scroll-content">
+      <div class="report-header">
+        <div class="report-title">Report a Smoker</div>
+        <div class="report-sub">Help keep quitters accountable</div>
+      </div>
+
+      <div class="camera-box" id="camera-box" onclick="fakePhoto()">
+        <div class="cam-icon">📷</div>
+        <p>Tap to take a photo (optional)</p>
+      </div>
+
+      <div class="report-form">
+        <div>
+          <label class="form-label">Location type</label>
+          <select class="form-select">
+            <option>🚌 Public transport stop</option>
+            <option>🏫 School zone</option>
+            <option>🏥 Near a hospital</option>
+            <option>🛒 Shopping area</option>
+            <option>🌳 Park</option>
+            <option>📍 Other public space</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Describe the situation (optional)</label>
+          <textarea class="form-textarea" placeholder="e.g. Smoking right next to the school entrance..."></textarea>
+        </div>
+        <button class="btn-report" onclick="submitReport()">🚨 Submit Report</button>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-item" onclick="goTab('home')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </div>
+      <div class="nav-item active" onclick="goTab('report')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Report
+      </div>
+      <div class="nav-item" onclick="goTab('board')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4H2v16h5V4zm10 0h-5v16h5V4zm5 0h-3v16h3V4z"/></svg>
+        Leaderboard
+      </div>
+      <div class="nav-item" onclick="goTab('profile')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ LEADERBOARD ══════════ -->
+  <div class="screen" id="screen-board">
+    <div class="scroll-content">
+      <div class="board-header">
+        <div class="board-title">Leaderboard</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab(this,'spotters')">Top Spotters</div>
+        <div class="tab" onclick="switchTab(this,'quitters')">Top Quitters</div>
+      </div>
+
+      <div id="tab-spotters">
+        <div class="board-list">
+          <div class="board-item top1">
+            <div class="rank gold">1</div>
+            <div class="avatar">🕵️</div>
+            <div><div class="board-name">Sandra K.</div><div class="board-stat">47 reports this month</div></div>
+            <div class="board-score">847</div>
+          </div>
+          <div class="board-item top2">
+            <div class="rank silver">2</div>
+            <div class="avatar">👀</div>
+            <div><div class="board-name">Max B.</div><div class="board-stat">39 reports this month</div></div>
+            <div class="board-score">712</div>
+          </div>
+          <div class="board-item top3">
+            <div class="rank bronze">3</div>
+            <div class="avatar">🔍</div>
+            <div><div class="board-name">Lena W.</div><div class="board-stat">31 reports this month</div></div>
+            <div class="board-score">634</div>
+          </div>
+          <div class="board-item">
+            <div class="rank" style="color:var(--muted)">4</div>
+            <div class="avatar">🎯</div>
+            <div><div class="board-name">Tom H.</div><div class="board-stat">27 reports this month</div></div>
+            <div class="board-score">519</div>
+          </div>
+          <div class="board-item">
+            <div class="rank" style="color:var(--muted)">5</div>
+            <div class="avatar">⭐</div>
+            <div><div class="board-name">You (Alex)</div><div class="board-stat">12 reports this month</div></div>
+            <div class="board-score">231</div>
+          </div>
+        </div>
+
+        <div class="board-reward">
+          <div class="reward-title">🎁 Rewards at 10 reports</div>
+          <div class="reward-items">
+            <div class="reward-item"><div class="reward-badge">10 pts</div>Free coffee at participating shops</div>
+            <div class="reward-item"><div class="reward-badge">50 pts</div>Public transport day ticket</div>
+            <div class="reward-item"><div class="reward-badge">100 pts</div>Freebie of the month 🎉</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-quitters" style="display:none">
+        <div class="board-list">
+          <div class="board-item top1">
+            <div class="rank gold">1</div>
+            <div class="avatar">🏆</div>
+            <div><div class="board-name">Julia F.</div><div class="board-stat">62 days smoke-free</div></div>
+            <div class="board-score">62d</div>
+          </div>
+          <div class="board-item top2">
+            <div class="rank silver">2</div>
+            <div class="avatar">💪</div>
+            <div><div class="board-name">Peter N.</div><div class="board-stat">54 days smoke-free</div></div>
+            <div class="board-score">54d</div>
+          </div>
+          <div class="board-item top3">
+            <div class="rank bronze">3</div>
+            <div class="avatar">🌱</div>
+            <div><div class="board-name">Anna R.</div><div class="board-stat">41 days smoke-free</div></div>
+            <div class="board-score">41d</div>
+          </div>
+          <div class="board-item">
+            <div class="rank" style="color:var(--muted)">4</div>
+            <div class="avatar">🔥</div>
+            <div><div class="board-name">You (Alex)</div><div class="board-stat">14 days smoke-free</div></div>
+            <div class="board-score">14d</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-item" onclick="goTab('home')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </div>
+      <div class="nav-item" onclick="goTab('report')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Report
+      </div>
+      <div class="nav-item active" onclick="goTab('board')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4H2v16h5V4zm10 0h-5v16h5V4zm5 0h-3v16h3V4z"/></svg>
+        Leaderboard
+      </div>
+      <div class="nav-item" onclick="goTab('profile')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PROFILE ══════════ -->
+  <div class="screen" id="screen-profile">
+    <div class="scroll-content">
+      <div class="profile-header">
+        <div class="profile-avatar">😎</div>
+        <div class="profile-name">Alex Müller</div>
+        <div class="profile-role">🚭 Quitter</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-tile">
+          <div class="stat-tile-val" style="color:var(--accent2)">14</div>
+          <div class="stat-tile-label">Day streak</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-tile-val" style="color:var(--accent)">€82</div>
+          <div class="stat-tile-label">Saved</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-tile-val" style="color:#a78bfa">12</div>
+          <div class="stat-tile-label">Reports</div>
+        </div>
+      </div>
+
+      <div class="badges-section">
+        <div class="badges-title">Badges</div>
+        <div class="badges-grid">
+          <div class="badge earned">🌅 First sunrise</div>
+          <div class="badge earned">📅 One week</div>
+          <div class="badge earned">💶 Saved €50</div>
+          <div class="badge earned">👁️ First report</div>
+          <div class="badge locked">📅 One month</div>
+          <div class="badge locked">🏆 Top spotter</div>
+          <div class="badge locked">💯 100 days</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-bar">
+      <div class="nav-item" onclick="goTab('home')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </div>
+      <div class="nav-item" onclick="goTab('report')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+        Report
+      </div>
+      <div class="nav-item" onclick="goTab('board')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4H2v16h5V4zm10 0h-5v16h5V4zm5 0h-3v16h3V4z"/></svg>
+        Leaderboard
+      </div>
+      <div class="nav-item active" onclick="goTab('profile')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+        Profile
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ MODALS ══════════ -->
+  <div class="modal-overlay" id="modal-mood" onclick="closeModal('mood')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-icon">😌</div>
+      <div class="modal-title">How are you feeling?</div>
+      <div class="modal-body">Log your current craving level and mood. Every entry helps you see your progress over time.</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;font-size:28px">
+        <span style="cursor:pointer" onclick="selectMood(this)">😤</span>
+        <span style="cursor:pointer" onclick="selectMood(this)">😐</span>
+        <span style="cursor:pointer" onclick="selectMood(this)">😌</span>
+        <span style="cursor:pointer" onclick="selectMood(this)">😊</span>
+        <span style="cursor:pointer" onclick="selectMood(this)">🥳</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-primary" onclick="saveMood()">Save Mood</button>
+        <button class="btn-modal-secondary" onclick="closeModal('mood')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-note" onclick="closeModal('note')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-icon">📝</div>
+      <div class="modal-title">Progress note</div>
+      <div class="modal-body">Write something about today — what was hard, what helped, a small win.</div>
+      <textarea class="form-textarea" id="note-input" placeholder="Today was tough but I made it..."></textarea>
+      <div class="modal-actions" style="margin-top:14px">
+        <button class="btn-modal-primary" onclick="saveNote()">Save Note</button>
+        <button class="btn-modal-secondary" onclick="closeModal('note')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  // ── Screen routing ──
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function goOnboard() { show('screen-onboard'); }
+
+  let currentStep = 1;
+  function nextStep(n) {
+    document.getElementById('step-' + currentStep).classList.remove('active');
+    document.getElementById('dot-' + currentStep).classList.remove('active');
+    currentStep = n;
+    document.getElementById('step-' + n).classList.add('active');
+    document.getElementById('dot-' + n).classList.add('active');
+  }
+
+  function enterApp() { show('screen-home'); }
+
+  function goTab(tab) {
+    const map = { home: 'screen-home', report: 'screen-report', board: 'screen-board', profile: 'screen-profile' };
+    show(map[tab]);
+  }
+
+  // ── Role select ──
+  function selectRole(el, role) {
+    document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  // ── Leaderboard tabs ──
+  function switchTab(el, id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('tab-spotters').style.display = id === 'spotters' ? 'block' : 'none';
+    document.getElementById('tab-quitters').style.display = id === 'quitters' ? 'block' : 'none';
+  }
+
+  // ── Report ──
+  function fakePhoto() {
+    const box = document.getElementById('camera-box');
+    box.classList.add('has-photo');
+    box.innerHTML = '<div class="cam-icon">✅</div><p class="photo-label">Photo captured</p>';
+    toast('📷 Photo added to report');
+  }
+
+  function submitReport() {
+    toast('🚨 Report submitted! +10 points');
+    document.getElementById('camera-box').classList.remove('has-photo');
+    document.getElementById('camera-box').innerHTML = '<div class="cam-icon">📷</div><p>Tap to take a photo (optional)</p>';
+  }
+
+  // ── Modals ──
+  function showModal(id) {
+    document.getElementById('modal-' + id).classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById('modal-' + id).classList.remove('open');
+  }
+
+  let selectedMoodEl = null;
+  function selectMood(el) {
+    if (selectedMoodEl) selectedMoodEl.style.transform = '';
+    selectedMoodEl = el;
+    el.style.transform = 'scale(1.4)';
+  }
+
+  function saveMood() {
+    closeModal('mood');
+    toast(selectedMoodEl ? selectedMoodEl.textContent + ' Mood logged!' : '✅ Mood logged!');
+    selectedMoodEl = null;
+  }
+
+  function saveNote() {
+    const val = document.getElementById('note-input').value.trim();
+    closeModal('note');
+    toast(val ? '📝 Note saved!' : '📝 Note saved!');
+    document.getElementById('note-input').value = '';
+  }
+
+  // ── Toast ──
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>
